@@ -77,6 +77,22 @@ TOP_COMMENTS_TO_EMBED: int = int(os.getenv("TOP_COMMENTS_TO_EMBED", "5"))
 EMBEDDING_BATCH_SIZE: int = int(os.getenv("EMBEDDING_BATCH_SIZE", "64"))
 
 # ---------------------------------------------------------------------------
+# Query agent
+# ---------------------------------------------------------------------------
+
+# Anthropic API key — set this in .env
+ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
+
+# Claude model used for answering queries
+ANTHROPIC_MODEL: str = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-5-20250929")
+
+# Number of top posts to retrieve and pass as context to the LLM
+TOP_K_RESULTS: int = int(os.getenv("TOP_K_RESULTS", "5"))
+
+# Max tokens for the LLM answer
+QUERY_MAX_TOKENS: int = int(os.getenv("QUERY_MAX_TOKENS", "1024"))
+
+# ---------------------------------------------------------------------------
 # Storage paths
 # ---------------------------------------------------------------------------
 RAW_DATA_DIR: Path = PROJECT_ROOT / "data" / "raw"
