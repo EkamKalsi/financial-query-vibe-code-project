@@ -14,3 +14,6 @@ numpy>=1.26.0
 
 # Query agent (LLM)
 anthropic>=0.25.0
+
+# Web UI
+streamlit>=1.35.0

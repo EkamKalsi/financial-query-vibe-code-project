@@ -81,7 +81,8 @@ financial_query_vibe_code_project/
 │
 ├── agents/
 │   ├── scraping_agent.py     # Phase 1 — Reddit data collection         ✅
-│   └── embedding_agent.py    # Phase 2 — vector embedding + index        ✅
+│   ├── embedding_agent.py    # Phase 2 — vector embedding + index        ✅
+│   └── query_agent.py        # Phase 3 — RAG retrieval + Claude answer   ✅
 │
 ├── config/
 │   └── settings.py           # Centralised config, loaded from .env
@@ -93,6 +94,7 @@ financial_query_vibe_code_project/
 │
 ├── logs/                     # Runtime logs (one file per orchestrator run)
 │
+├── app.py                    # Phase 4 — Streamlit web UI                ✅
 ├── orchestrator.py           # Weekly pipeline: scrape → embed → archive  ✅
 ├── .env.example              # Tuning template (no credentials needed)
 ├── .gitignore
@@ -130,15 +132,21 @@ source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 3. Configure (optional)
+### 3. Configure
 
 ```bash
 cp .env.example .env
 ```
 
-All values in `.env` are optional tuning knobs — the system works out of the
-box with no credentials. The only value worth setting is a descriptive
-`REDDIT_USER_AGENT` (Reddit may throttle requests with a generic one):
+Most values are optional tuning knobs. The only **required** setting for the
+query agent is your Anthropic API key (get one at https://console.anthropic.com):
+
+```
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+Also recommended: set a descriptive `REDDIT_USER_AGENT` (Reddit may throttle
+requests with a generic one):
 
 ```
 REDDIT_USER_AGENT=FinancialQueryBot/0.1 (your description here)
@@ -173,7 +181,23 @@ python -m agents.embedding_agent
 Output: `data/processed/embeddings.npy` (float32, shape `N × 384`) and
 `data/processed/posts_index.json` (metadata aligned row-for-row).
 
-### 6. Run the weekly pipeline (orchestrator)
+### 6. Launch the web UI
+
+```bash
+streamlit run app.py
+```
+
+Open **http://localhost:8501** in your browser. The UI has three sections:
+
+- **Index Status** — shows total posts, subreddit breakdown, embedding dims,
+  and last updated timestamp. The **🔄 Fetch & Update Index** button runs a
+  full scrape + incremental embed in one click.
+- **Query box** — type any financial question and click **Ask**.
+- **Answer** — Claude's structured response rendered as markdown, with a
+  collapsible **Sources** panel listing the retrieved posts with similarity
+  scores and direct Reddit links.
+
+### 7. Run the weekly pipeline (orchestrator)
 
 ```bash
 python -m orchestrator
@@ -232,8 +256,8 @@ Both values are configurable via `.env` without touching code.
 - [x] Phase 1 — Scraping Agent (Reddit `.json` endpoint, no API key)
 - [x] Phase 2 — Embedding Agent (sentence-transformers, incremental updates)
 - [x] Orchestrator (weekly cron pipeline with raw-file archiving)
-- [ ] Phase 3 — Query Agent (cosine retrieval + Claude LLM response)
-- [ ] Phase 4 — Simple query CLI / web UI
+- [x] Phase 3 — Query Agent (cosine retrieval + Claude LLM response with citations)
+- [x] Phase 4 — Streamlit web UI (index stats, query box, answer + sources)
 
 ---
 
