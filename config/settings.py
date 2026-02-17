@@ -1,0 +1,71 @@
+"""
+Central configuration for the Reddit Financial Query multi-agent system.
+Tunable values are loaded from environment variables (via .env file).
+No API keys or OAuth credentials are required.
+"""
+
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Project root is one level above this file
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+load_dotenv(PROJECT_ROOT / ".env")
+
+# ---------------------------------------------------------------------------
+# HTTP client identity
+# Reddit requires a descriptive User-Agent; requests without one are blocked.
+# ---------------------------------------------------------------------------
+REDDIT_USER_AGENT: str = os.getenv(
+    "REDDIT_USER_AGENT", "FinancialQueryBot/0.1 (research project)"
+)
+
+# ---------------------------------------------------------------------------
+# Scraper defaults
+# ---------------------------------------------------------------------------
+DEFAULT_SUBREDDITS: list[str] = [
+    "investing",
+    "stocks",
+    "wallstreetbets",
+    "personalfinance",
+    "SecurityAnalysis",
+    "ValueInvesting",
+]
+
+# Maximum posts to fetch per subreddit run (Reddit paginates at 100/page)
+MAX_POSTS_PER_SUBREDDIT: int = int(os.getenv("MAX_POSTS_PER_SUBREDDIT", "500"))
+
+# How many top-level comments to collect per post (0 = all)
+MAX_COMMENTS_PER_POST: int = int(os.getenv("MAX_COMMENTS_PER_POST", "50"))
+
+# Minimum score (upvotes) a post must have to be included
+MIN_POST_SCORE: int = int(os.getenv("MIN_POST_SCORE", "10"))
+
+# Sort order when fetching posts: hot | new | top | rising
+DEFAULT_SORT: str = os.getenv("DEFAULT_SORT", "hot")
+
+# Time filter used with sort="top": hour|day|week|month|year|all
+DEFAULT_TIME_FILTER: str = os.getenv("DEFAULT_TIME_FILTER", "week")
+
+# Seconds to sleep between requests — keeps us well under Reddit's ~1 req/s limit
+REQUEST_DELAY_SECONDS: float = float(os.getenv("REQUEST_DELAY_SECONDS", "1.1"))
+
+# Seconds to wait as the base for exponential back-off on 429 responses
+RATE_LIMIT_BACKOFF_SECONDS: float = float(
+    os.getenv("RATE_LIMIT_BACKOFF_SECONDS", "5.0")
+)
+
+# Max retry attempts on transient network / rate-limit errors
+MAX_RETRIES: int = int(os.getenv("MAX_RETRIES", "3"))
+
+# ---------------------------------------------------------------------------
+# Storage paths
+# ---------------------------------------------------------------------------
+RAW_DATA_DIR: Path = PROJECT_ROOT / "data" / "raw"
+PROCESSED_DATA_DIR: Path = PROJECT_ROOT / "data" / "processed"
+LOG_DIR: Path = PROJECT_ROOT / "logs"
+
+# Ensure directories exist
+for _dir in (RAW_DATA_DIR, PROCESSED_DATA_DIR, LOG_DIR):
+    _dir.mkdir(parents=True, exist_ok=True)
