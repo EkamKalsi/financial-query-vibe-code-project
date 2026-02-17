@@ -102,6 +102,18 @@ def _get_embed_model() -> SentenceTransformer:
     return _embed_model
 
 
+def reload_index() -> None:
+    """
+    Invalidate the module-level index cache so the next call to _load_index()
+    re-reads from disk. Call this after running update_index() to ensure the
+    UI or any long-running process picks up the freshly updated embeddings.
+    """
+    global _embeddings, _index
+    _embeddings = None
+    _index = None
+    logger.info("Index cache cleared — will reload from disk on next query.")
+
+
 # ---------------------------------------------------------------------------
 # Retrieval
 # ---------------------------------------------------------------------------
