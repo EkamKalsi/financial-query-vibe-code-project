@@ -60,12 +60,34 @@ RATE_LIMIT_BACKOFF_SECONDS: float = float(
 MAX_RETRIES: int = int(os.getenv("MAX_RETRIES", "3"))
 
 # ---------------------------------------------------------------------------
+# Embedding agent
+# ---------------------------------------------------------------------------
+
+# sentence-transformers model used for embedding posts and queries.
+# all-MiniLM-L6-v2: 80 MB, 384-dim, fast on CPU, good semantic quality.
+EMBEDDING_MODEL: str = os.getenv(
+    "EMBEDDING_MODEL", "all-MiniLM-L6-v2"
+)
+
+# Number of top comments to include when building the text to embed per post.
+# More comments = richer signal but slower embedding and larger context later.
+TOP_COMMENTS_TO_EMBED: int = int(os.getenv("TOP_COMMENTS_TO_EMBED", "5"))
+
+# Batch size for sentence-transformers .encode() — tune down if RAM is tight
+EMBEDDING_BATCH_SIZE: int = int(os.getenv("EMBEDDING_BATCH_SIZE", "64"))
+
+# ---------------------------------------------------------------------------
 # Storage paths
 # ---------------------------------------------------------------------------
 RAW_DATA_DIR: Path = PROJECT_ROOT / "data" / "raw"
 PROCESSED_DATA_DIR: Path = PROJECT_ROOT / "data" / "processed"
+ARCHIVE_DIR: Path = PROJECT_ROOT / "data" / "archive"
 LOG_DIR: Path = PROJECT_ROOT / "logs"
 
+# Files written by the embedding agent and read by the query agent
+EMBEDDINGS_FILE: Path = PROCESSED_DATA_DIR / "embeddings.npy"
+POSTS_INDEX_FILE: Path = PROCESSED_DATA_DIR / "posts_index.json"
+
 # Ensure directories exist
-for _dir in (RAW_DATA_DIR, PROCESSED_DATA_DIR, LOG_DIR):
+for _dir in (RAW_DATA_DIR, PROCESSED_DATA_DIR, ARCHIVE_DIR, LOG_DIR):
     _dir.mkdir(parents=True, exist_ok=True)
